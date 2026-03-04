@@ -1,9 +1,7 @@
 const config = require('./config')
 const db = require('./db')
 const { parseBcnsTx, validatePayload, findBurnOutput, BURN_AMOUNT_SATS } = require('./parser')
-const bchApi = config.bchInterface === 'consumer-api'
-  ? require('./bch-consumer')
-  : require('./bch-api')
+const bchApi = require('./bch-consumer')
 
 const POLL_INTERVAL_MS = 30000
 

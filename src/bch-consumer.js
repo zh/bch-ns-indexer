@@ -22,7 +22,7 @@ async function getBlockHash (height) {
 
 async function getBlock (hash) {
   // consumer-api getBlock returns txid strings, not full tx objects.
-  // Fetch each tx to match the bch-api.js verbosity=2 format.
+  // Fetch each tx to get full tx data with vout details.
   const block = await bchjs.Blockchain.getBlock(hash)
   const txData = []
   for (const txid of block.tx) {

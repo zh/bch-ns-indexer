@@ -60,23 +60,29 @@ Edit `.env`:
 | Variable        | Default                              | Description                                                            |
 |-----------------|--------------------------------------|------------------------------------------------------------------------|
 | `PORT`          | `3100`                               | API server port                                                        |
-| `BCH_INTERFACE` | `consumer-api`                       | `consumer-api` (local psf-bch-api) or `rest-api` (FullStack.cash REST) |
-| `BCH_REST_URL`  | `http://192.168.0.3:5942/v6`         | Blockchain API endpoint (must match interface)                         |
+| `BCH_INTERFACE` | `consumer-api`                       | `consumer-api` (consumer protocol), rest-api cannot get block info         |
+| `BCH_REST_URL`  | `https://api.fullstack.cash/v5/`     | Blockchain API endpoint (must match interface)                         |
 | `START_BLOCK`   | `850000`                             | Block height to start scanning from                                    |
 | `DB_PATH`       | `./data/bchns.sqlite`                | SQLite database file path                                              |
 | `SCAN_DELAY_MS` | `15000`                              | Delay between blocks (ms). Set to `0` for local nodes                  |
+| `WALLET_INTERFACE` | `consumer-api`                    | Wallet backend for CLI scripts (`rest-api` or `consumer-api`)          |
+| `WALLET_REST_URL`  | `https://free-bch.fullstack.cash` | Wallet API endpoint for CLI scripts                                   |
 
 #### Backend configuration examples
 
 ```bash
-# Option A: consumer-api (local psf-bch-api / JSON-RPC)
+# Option A: Local psf-bch-api node
 BCH_INTERFACE=consumer-api
 BCH_REST_URL=http://192.168.0.3:5942/v6
+WALLET_INTERFACE=rest-api
+WALLET_REST_URL=http://192.168.0.3:5942/v6
 SCAN_DELAY_MS=0
 
-# Option B: rest-api (FullStack.cash direct REST)
-BCH_INTERFACE=rest-api
+# Option B: Remote FullStack.cash (used on Railway)
+BCH_INTERFACE=consumer-api
 BCH_REST_URL=https://api.fullstack.cash/v5/
+WALLET_INTERFACE=consumer-api
+WALLET_REST_URL=https://free-bch.fullstack.cash
 SCAN_DELAY_MS=15000
 ```
 

@@ -117,11 +117,16 @@ describe('deleteName', () => {
   })
 
   describe('wallet interaction', () => {
-    it('should initialize wallet with WIF and config', async () => {
+    it('should initialize wallet with WIF and wallet config', async () => {
       await deleteName('testname.bch', 'L1testwif')
 
       expect(SlpWalletStub.calledOnce).to.equal(true)
       expect(SlpWalletStub.firstCall.args[0]).to.equal('L1testwif')
+
+      const config = require('../src/config')
+      const opts = SlpWalletStub.firstCall.args[1]
+      expect(opts.interface).to.equal(config.walletInterface)
+      expect(opts.restURL).to.equal(config.walletRestUrl)
     })
 
     it('should wait for wallet init and fetch UTXOs', async () => {
