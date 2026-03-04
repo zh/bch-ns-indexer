@@ -1,14 +1,14 @@
-const SlpWallet = require('minimal-slp-wallet').default
 const config = require('./config')
 const db = require('./db')
 const { parseBcnsTx, validatePayload, findBurnOutput, BURN_AMOUNT_SATS } = require('./parser')
+const bchApi = require('./bch-api')
 
 const POLL_INTERVAL_MS = 30000
 
 /**
  * Get the sender address from vin[0] of a raw transaction.
  */
-async function getSenderAddress (bchjs, txData) {
+async function getSenderAddress (txData) {
   if (!txData.vin || !txData.vin.length) return null
 
   const vin0 = txData.vin[0]
@@ -18,7 +18,7 @@ async function getSenderAddress (bchjs, txData) {
 
   // Otherwise, look up the previous output
   if (vin0.txid && vin0.vout != null) {
-    const prevTx = await bchjs.RawTransactions.getRawTransaction(vin0.txid, true)
+    const prevTx = await bchApi.getRawTransaction(vin0.txid, true)
     const prevOut = prevTx.vout[vin0.vout]
     if (prevOut && prevOut.scriptPubKey && prevOut.scriptPubKey.addresses) {
       return prevOut.scriptPubKey.addresses[0]
@@ -31,14 +31,14 @@ async function getSenderAddress (bchjs, txData) {
 /**
  * Process a single transaction: parse, validate, and apply rules.
  */
-async function processTx (bchjs, txData, blockHeight, blockPos) {
+async function processTx (txData, blockHeight, blockPos) {
   const payload = parseBcnsTx(txData)
   if (!payload) return
 
   const validation = validatePayload(payload)
   if (!validation.valid) return
 
-  const sender = await getSenderAddress(bchjs, txData)
+  const sender = await getSenderAddress(txData)
   if (!sender) return
 
   const name = payload.name.trim().toLowerCase()
@@ -80,21 +80,21 @@ async function processTx (bchjs, txData, blockHeight, blockPos) {
 /**
  * Process all transactions in a single block.
  */
-async function processBlock (bchjs, blockHeight) {
+async function processBlock (blockHeight) {
   // Get block hash from height
-  const blockHash = await bchjs.Blockchain.getBlockHash(blockHeight)
-  const block = await bchjs.Blockchain.getBlock(blockHash)
+  const blockHash = await bchApi.getBlockHash(blockHeight)
+  // verbosity=2 returns full tx objects inline
+  const block = await bchApi.getBlock(blockHash)
 
   if (!block || !block.tx || !block.tx.length) return
 
   for (let i = 0; i < block.tx.length; i++) {
-    const txid = block.tx[i]
+    const txData = block.tx[i]
     try {
-      const txData = await bchjs.RawTransactions.getRawTransaction(txid, true)
-      await processTx(bchjs, txData, blockHeight, i)
+      await processTx(txData, blockHeight, i)
     } catch (err) {
       // Skip transactions we can't decode
-      console.error(`Error processing tx ${txid} at block ${blockHeight}:`, err.message || err)
+      console.error(`Error processing tx ${txData.txid} at block ${blockHeight}:`, err.message || err)
     }
   }
 }
@@ -102,35 +102,34 @@ async function processBlock (bchjs, blockHeight) {
 /**
  * Main scanner loop: scans blocks sequentially, sleeps when caught up.
  */
-async function startScanner (database) {
-  // Initialize wallet to access bchjs
-  const wallet = new SlpWallet(undefined, {
-    interface: config.bchInterface,
-    restURL: config.bchRestUrl
-  })
-  await wallet.walletInfoPromise
-
-  const bchjs = wallet.ar.bchjs
-
+async function startScanner () {
   console.log('Scanner started')
+
+  let cachedTip = 0
 
   while (true) {
     const lastBlock = db.getLastBlock() || (config.startBlock - 1)
     const nextBlock = lastBlock + 1
 
     try {
-      const chainInfo = await bchjs.Blockchain.getBlockchainInfo()
-      const tipHeight = chainInfo.blocks
+      // Only refresh tip when caught up or stale
+      if (nextBlock > cachedTip) {
+        const chainInfo = await bchApi.getBlockchainInfo()
+        cachedTip = chainInfo.blocks
+      }
 
-      if (nextBlock > tipHeight) {
+      if (nextBlock > cachedTip) {
         // Caught up — wait and poll again
         await sleep(POLL_INTERVAL_MS)
         continue
       }
 
-      console.log(`Scanning block ${nextBlock} (tip: ${tipHeight})`)
-      await processBlock(bchjs, nextBlock)
+      console.log(`Scanning block ${nextBlock} (tip: ${cachedTip})`)
+      await processBlock(nextBlock)
       db.setLastBlock(nextBlock)
+
+      // Rate-limit: ~2 API calls per block, 10 req/min limit on free tier
+      if (config.scanDelayMs > 0) await sleep(config.scanDelayMs)
     } catch (err) {
       console.error(`Scanner error at block ${nextBlock}:`, err.message || err)
       await sleep(POLL_INTERVAL_MS)

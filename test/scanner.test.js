@@ -1,5 +1,4 @@
 const { expect } = require('chai')
-const sinon = require('sinon')
 const path = require('path')
 const fs = require('fs')
 const db = require('../src/db')
@@ -52,19 +51,11 @@ function buildBcnsTx (payload, opts = {}) {
 }
 
 describe('scanner - processTx', () => {
-  let bchjs
-
   beforeEach(() => {
     if (fs.existsSync(TEST_DB_PATH)) {
       fs.unlinkSync(TEST_DB_PATH)
     }
     db.initDb(TEST_DB_PATH)
-
-    bchjs = {
-      RawTransactions: {
-        getRawTransaction: sinon.stub()
-      }
-    }
   })
 
   afterEach(() => {
@@ -81,7 +72,7 @@ describe('scanner - processTx', () => {
         { sender: 'bitcoincash:qowner', burnSats: 10000, txid: 'createtx' }
       )
 
-      await processTx(bchjs, txData, 100, 0)
+      await processTx(txData, 100, 0)
 
       const row = db.getName('hello.bch')
       expect(row).to.not.equal(null)
@@ -97,7 +88,7 @@ describe('scanner - processTx', () => {
         { sender: 'bitcoincash:qowner', burnSats: 5000 }
       )
 
-      await processTx(bchjs, txData, 100, 0)
+      await processTx(txData, 100, 0)
 
       expect(db.getName('hello.bch')).to.equal(null)
     })
@@ -110,7 +101,7 @@ describe('scanner - processTx', () => {
         { sender: 'bitcoincash:qowner2', burnSats: 10000 }
       )
 
-      await processTx(bchjs, txData, 100, 0)
+      await processTx(txData, 100, 0)
 
       const row = db.getName('hello.bch')
       expect(row.address).to.equal('bitcoincash:qold')
@@ -125,7 +116,7 @@ describe('scanner - processTx', () => {
         { sender: 'bitcoincash:qother', burnSats: 10000 }
       )
 
-      await processTx(bchjs, txData, 100, 0)
+      await processTx(txData, 100, 0)
 
       const row = db.getName('hello.bch')
       expect(row.status).to.equal('deleted')
@@ -141,7 +132,7 @@ describe('scanner - processTx', () => {
         { sender: 'bitcoincash:qowner', txid: 'updatetx' }
       )
 
-      await processTx(bchjs, txData, 100, 0)
+      await processTx(txData, 100, 0)
 
       const row = db.getName('hello.bch')
       expect(row.address).to.equal('bitcoincash:qnew')
@@ -157,7 +148,7 @@ describe('scanner - processTx', () => {
         { sender: 'bitcoincash:qother' }
       )
 
-      await processTx(bchjs, txData, 100, 0)
+      await processTx(txData, 100, 0)
 
       const row = db.getName('hello.bch')
       expect(row.address).to.equal('bitcoincash:qold')
@@ -169,7 +160,7 @@ describe('scanner - processTx', () => {
         { sender: 'bitcoincash:qowner' }
       )
 
-      await processTx(bchjs, txData, 100, 0)
+      await processTx(txData, 100, 0)
 
       expect(db.getName('nope.bch')).to.equal(null)
     })
@@ -184,7 +175,7 @@ describe('scanner - processTx', () => {
         { sender: 'bitcoincash:qowner' }
       )
 
-      await processTx(bchjs, txData, 100, 0)
+      await processTx(txData, 100, 0)
 
       const row = db.getName('hello.bch')
       expect(row.status).to.equal('deleted')
@@ -199,7 +190,7 @@ describe('scanner - processTx', () => {
         { sender: 'bitcoincash:qother' }
       )
 
-      await processTx(bchjs, txData, 100, 0)
+      await processTx(txData, 100, 0)
 
       const row = db.getName('hello.bch')
       expect(row.status).to.equal('active')
@@ -215,7 +206,7 @@ describe('scanner - processTx', () => {
         { sender: 'bitcoincash:qowner', txid: 'transfertx' }
       )
 
-      await processTx(bchjs, txData, 100, 0)
+      await processTx(txData, 100, 0)
 
       const row = db.getName('hello.bch')
       expect(row.owner).to.equal('bitcoincash:qnewowner')
@@ -231,7 +222,7 @@ describe('scanner - processTx', () => {
         { sender: 'bitcoincash:qother' }
       )
 
-      await processTx(bchjs, txData, 100, 0)
+      await processTx(txData, 100, 0)
 
       const row = db.getName('hello.bch')
       expect(row.owner).to.equal('bitcoincash:qowner')
@@ -250,7 +241,7 @@ describe('scanner - processTx', () => {
         }]
       }
 
-      await processTx(bchjs, txData, 100, 0)
+      await processTx(txData, 100, 0)
       // No error, no DB changes
     })
   })
