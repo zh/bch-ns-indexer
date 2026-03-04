@@ -60,8 +60,7 @@ Edit `.env`:
 | Variable        | Default                              | Description                                                            |
 |-----------------|--------------------------------------|------------------------------------------------------------------------|
 | `PORT`          | `3100`                               | API server port                                                        |
-| `BCH_INTERFACE` | `consumer-api`                       | `consumer-api` (consumer protocol), rest-api cannot get block info         |
-| `BCH_REST_URL`  | `https://api.fullstack.cash/v5/`     | Blockchain API endpoint (must match interface)                         |
+| `BCH_REST_URL`  | `https://api.fullstack.cash/v5/`     | Blockchain API endpoint                                                |
 | `START_BLOCK`   | `850000`                             | Block height to start scanning from                                    |
 | `DB_PATH`       | `./data/bchns.sqlite`                | SQLite database file path                                              |
 | `SCAN_DELAY_MS` | `15000`                              | Delay between blocks (ms). Set to `0` for local nodes                  |
@@ -72,14 +71,12 @@ Edit `.env`:
 
 ```bash
 # Option A: Local psf-bch-api node
-BCH_INTERFACE=consumer-api
 BCH_REST_URL=http://192.168.0.3:5942/v6
 WALLET_INTERFACE=rest-api
 WALLET_REST_URL=http://192.168.0.3:5942/v6
 SCAN_DELAY_MS=0
 
 # Option B: Remote FullStack.cash (used on Railway)
-BCH_INTERFACE=consumer-api
 BCH_REST_URL=https://api.fullstack.cash/v5/
 WALLET_INTERFACE=consumer-api
 WALLET_REST_URL=https://free-bch.fullstack.cash
@@ -92,7 +89,7 @@ SCAN_DELAY_MS=15000
 npm start
 ```
 
-The indexer scans from `START_BLOCK`, processes all BCNS transactions, then polls every 30 seconds for new blocks.
+The indexer scans from `START_BLOCK`, processes all BCNS transactions, then polls for new blocks.
 
 ## API
 

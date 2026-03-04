@@ -1,5 +1,6 @@
 const Router = require('koa-router')
 const { getName, listNames } = require('../db')
+const { NAME_REGEX } = require('../parser')
 
 const router = new Router()
 
@@ -20,6 +21,12 @@ router.get('/api/names', async (ctx) => {
 router.get('/api/name/:name', async (ctx) => {
   const name = ctx.params.name.trim().toLowerCase()
   const fullName = name.endsWith('.bch') ? name : name + '.bch'
+
+  if (!NAME_REGEX.test(fullName)) {
+    ctx.status = 400
+    ctx.body = { error: `Invalid name format: ${fullName}` }
+    return
+  }
 
   const row = getName(fullName)
 

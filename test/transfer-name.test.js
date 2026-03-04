@@ -25,7 +25,8 @@ describe('transferName', () => {
       exports: { default: SlpWalletStub }
     }
 
-    // Clear cached transfer-name so it picks up the stub
+    // Clear cached modules so they pick up the stub
+    delete require.cache[require.resolve('../src/wallet-helper')]
     delete require.cache[require.resolve('../src/transfer-name')]
     transferName = require('../src/transfer-name').transferName
   })
@@ -33,6 +34,7 @@ describe('transferName', () => {
   afterEach(() => {
     sinon.restore()
     delete require.cache[require.resolve('minimal-slp-wallet')]
+    delete require.cache[require.resolve('../src/wallet-helper')]
     delete require.cache[require.resolve('../src/transfer-name')]
   })
 

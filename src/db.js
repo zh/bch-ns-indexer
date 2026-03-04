@@ -2,7 +2,7 @@ const Database = require('better-sqlite3')
 const path = require('path')
 const fs = require('fs')
 
-const COOLDOWN_BLOCKS = 100
+const COOLDOWN_BLOCKS = 100 // Blocks after deletion before name can be re-registered
 
 let db = null
 
@@ -31,6 +31,9 @@ function initDb (dbPath) {
       key   TEXT PRIMARY KEY,
       value TEXT NOT NULL
     );
+
+    CREATE INDEX IF NOT EXISTS idx_names_status ON names(status);
+    CREATE INDEX IF NOT EXISTS idx_names_height ON names(block_height);
   `)
 
   return db

@@ -3,7 +3,8 @@ const db = require('./db')
 const { parseBcnsTx, validatePayload, findBurnOutput, BURN_AMOUNT_SATS } = require('./parser')
 const bchApi = require('./bch-consumer')
 
-const POLL_INTERVAL_MS = 30000
+const POLL_INTERVAL_MS = 30000 // Time between chain-tip polls when caught up
+let stopping = false
 
 /**
  * Get the sender address from vin[0] of a raw transaction.
@@ -104,11 +105,17 @@ async function processBlock (blockHeight) {
  */
 async function startScanner () {
   if (bchApi.init) await bchApi.init()
-  console.log('Scanner started')
+
+  const lastBlock = db.getLastBlock()
+  const resumeFrom = lastBlock != null ? lastBlock + 1 : config.startBlock
+  console.log(`Scanner started, resuming from block ${resumeFrom}` +
+    (lastBlock != null ? ` (last indexed: ${lastBlock})` : ' (fresh start)'))
 
   let cachedTip = 0
+  let loggedCaughtUp = false
 
-  while (true) {
+  // eslint-disable-next-line no-unmodified-loop-condition
+  while (!stopping) {
     const lastBlock = db.getLastBlock() || (config.startBlock - 1)
     const nextBlock = lastBlock + 1
 
@@ -120,11 +127,15 @@ async function startScanner () {
       }
 
       if (nextBlock > cachedTip) {
-        // Caught up — wait and poll again
+        if (!loggedCaughtUp) {
+          console.log(`Caught up at block ${cachedTip}, waiting for new blocks...`)
+          loggedCaughtUp = true
+        }
         await sleep(POLL_INTERVAL_MS)
         continue
       }
 
+      loggedCaughtUp = false
       console.log(`Scanning block ${nextBlock} (tip: ${cachedTip})`)
       await processBlock(nextBlock)
       db.setLastBlock(nextBlock)
@@ -136,14 +147,20 @@ async function startScanner () {
       await sleep(POLL_INTERVAL_MS)
     }
   }
+  console.log('Scanner stopped')
 }
 
 function sleep (ms) {
   return new Promise(resolve => setTimeout(resolve, ms))
 }
 
+function stopScanner () {
+  stopping = true
+}
+
 module.exports = {
   startScanner,
+  stopScanner,
   processBlock,
   processTx,
   getSenderAddress

@@ -1,7 +1,7 @@
 const LOKAD_PREFIX = '42434e53' // hex for "BCNS"
 const NAME_REGEX = /^[a-z0-9][a-z0-9-]{1,30}[a-z0-9]\.bch$/
 const BURN_ADDRESS = 'bitcoincash:qqqqqqqqqqqqqqqqqqqqqqqqqqqqqu08dsyxz98whc'
-const BURN_AMOUNT_SATS = 10000
+const BURN_AMOUNT_SATS = 10000 // Minimum sats that must be burned to register a name
 
 /**
  * Parse a raw transaction for BCNS OP_RETURN data.
@@ -43,6 +43,7 @@ function parseBcnsTx (txData) {
       const payloadStr = Buffer.from(payloadHex, 'hex').toString('utf8')
       return JSON.parse(payloadStr)
     } catch (err) {
+      console.warn(`BCNS prefix matched but payload parse failed (tx ${txData.txid}): ${err.message}`)
       return null
     }
   }
