@@ -184,3 +184,13 @@ npm test              # run tests (mocha)
 npm run test:coverage # coverage report (nyc)
 npm run lint          # lint and auto-fix (standard)
 ```
+
+## Donate / Test
+
+Want to verify your wallet supports BCH Name Service? Try sending 10,000 sats (0.0001 BCH) to:
+
+```
+stoyan.bch
+```
+
+This should resolve to `bitcoincash:qpp0f8t557llskht7nhxpjwk33mnptjnfuw6cv3zvs`. If the transaction goes through, your wallet correctly resolves `.bch` names — and you just supported the project!
