@@ -5,8 +5,8 @@ let bchjs = null
 
 async function init () {
   const wallet = new SlpWallet(undefined, {
-    interface: config.bchInterface,
-    restURL: config.bchRestUrl
+    interface: config.walletInterface,
+    restURL: config.walletRestUrl
   })
   await wallet.walletInfoPromise
   bchjs = wallet.ar.bchjs

@@ -15,8 +15,8 @@ async function createName (name, addr, wif) {
 
   // 2. Init wallet from WIF
   const wallet = new SlpWallet(wif, {
-    interface: config.bchInterface,
-    restURL: config.bchRestUrl
+    interface: config.walletInterface,
+    restURL: config.walletRestUrl
   })
   await wallet.walletInfoPromise
   await wallet.getUtxos()
