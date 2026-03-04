@@ -1,7 +1,9 @@
 const config = require('./config')
 const db = require('./db')
 const { parseBcnsTx, validatePayload, findBurnOutput, BURN_AMOUNT_SATS } = require('./parser')
-const bchApi = require('./bch-api')
+const bchApi = config.bchInterface === 'consumer-api'
+  ? require('./bch-consumer')
+  : require('./bch-api')
 
 const POLL_INTERVAL_MS = 30000
 
@@ -103,6 +105,7 @@ async function processBlock (blockHeight) {
  * Main scanner loop: scans blocks sequentially, sleeps when caught up.
  */
 async function startScanner () {
+  if (bchApi.init) await bchApi.init()
   console.log('Scanner started')
 
   let cachedTip = 0

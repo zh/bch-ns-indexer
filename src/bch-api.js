@@ -1,11 +1,13 @@
+const http = require('http')
 const https = require('https')
 const config = require('./config')
 
 const BASE = config.bchRestUrl.replace(/\/$/, '')
+const client = BASE.startsWith('https') ? https : http
 
 function get (path) {
   return new Promise((resolve, reject) => {
-    https.get(`${BASE}/${path}`, (res) => {
+    client.get(`${BASE}/${path}`, (res) => {
       let body = ''
       res.on('data', (chunk) => { body += chunk })
       res.on('end', () => {
@@ -23,6 +25,7 @@ function post (path, data) {
   const url = new URL(`${BASE}/${path}`)
   const opts = {
     hostname: url.hostname,
+    port: url.port || undefined,
     path: url.pathname,
     method: 'POST',
     headers: {
@@ -32,7 +35,7 @@ function post (path, data) {
   }
 
   return new Promise((resolve, reject) => {
-    const req = https.request(opts, (res) => {
+    const req = client.request(opts, (res) => {
       let body = ''
       res.on('data', (chunk) => { body += chunk })
       res.on('end', () => {
