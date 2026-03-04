@@ -46,7 +46,7 @@ LOKAD prefix: `42434e53` (ASCII "BCNS")
 ### Prerequisites
 
 - Node.js
-- Access to a Bitcoin Cash full node or API endpoint (default: [FullStack.cash](https://fullstack.cash))
+- Access to a local [psf-bch-api](https://github.com/Permissionless-Software-Foundation/psf-bch-api) node or a [FullStack.cash](https://fullstack.cash) REST API endpoint
 
 ### Install & Configure
 
@@ -57,13 +57,28 @@ cp sample.env .env
 
 Edit `.env`:
 
-| Variable        | Default                         | Description                          |
-|-----------------|---------------------------------|--------------------------------------|
-| `PORT`          | `3100`                          | API server port                      |
-| `BCH_INTERFACE` | `consumer-api`                  | FullStack.cash interface type        |
-| `BCH_REST_URL`  | `https://free-bch.fullstack.cash` | Blockchain API endpoint            |
-| `START_BLOCK`   | `850000`                        | Block height to start scanning from  |
-| `DB_PATH`       | `./data/bchns.sqlite`           | SQLite database file path            |
+| Variable        | Default                              | Description                                                            |
+|-----------------|--------------------------------------|------------------------------------------------------------------------|
+| `PORT`          | `3100`                               | API server port                                                        |
+| `BCH_INTERFACE` | `consumer-api`                       | `consumer-api` (local psf-bch-api) or `rest-api` (FullStack.cash REST) |
+| `BCH_REST_URL`  | `http://192.168.0.3:5942/v6`         | Blockchain API endpoint (must match interface)                         |
+| `START_BLOCK`   | `850000`                             | Block height to start scanning from                                    |
+| `DB_PATH`       | `./data/bchns.sqlite`                | SQLite database file path                                              |
+| `SCAN_DELAY_MS` | `15000`                              | Delay between blocks (ms). Set to `0` for local nodes                  |
+
+#### Backend configuration examples
+
+```bash
+# Option A: consumer-api (local psf-bch-api / JSON-RPC)
+BCH_INTERFACE=consumer-api
+BCH_REST_URL=http://192.168.0.3:5942/v6
+SCAN_DELAY_MS=0
+
+# Option B: rest-api (FullStack.cash direct REST)
+BCH_INTERFACE=rest-api
+BCH_REST_URL=https://api.fullstack.cash/v5/
+SCAN_DELAY_MS=15000
+```
 
 ### Run
 
