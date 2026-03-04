@@ -66,6 +66,8 @@ Edit `.env`:
 | `SCAN_DELAY_MS` | `15000`                              | Delay between blocks (ms). Set to `0` for local nodes                  |
 | `WALLET_INTERFACE` | `consumer-api`                    | Wallet backend for CLI scripts (`rest-api` or `consumer-api`)          |
 | `WALLET_REST_URL`  | `https://free-bch.fullstack.cash` | Wallet API endpoint for CLI scripts                                   |
+| `ADMIN_USER`       | *(unset)*                         | Admin username for `GET /api/names`. When both `ADMIN_USER` and `ADMIN_PASS` are set, the endpoint requires HTTP Basic Auth. When unset, access is open. |
+| `ADMIN_PASS`       | *(unset)*                         | Admin password for `GET /api/names`                                    |
 
 #### Backend configuration examples
 
@@ -124,9 +126,13 @@ Returns `404` if the name is not registered or has been deleted.
 GET /api/names
 ```
 
-Returns all currently registered (active) names.
+Returns all currently registered (active) names. When `ADMIN_USER` and `ADMIN_PASS` are configured, this endpoint requires HTTP Basic Auth:
 
-**Example:**
+```bash
+curl -u admin:secret http://localhost:3100/api/names
+```
+
+Without credentials (or with wrong credentials) you will receive a `401 Unauthorized` response. When the env vars are unset, the endpoint is open:
 
 ```bash
 curl http://localhost:3100/api/names
