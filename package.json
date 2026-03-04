@@ -1,0 +1,29 @@
+{
+  "name": "bch-ns-indexer",
+  "version": "1.0.0",
+  "description": "BCH Name Service indexer - scans blockchain for BCNS registrations and serves a REST API",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "export KOA_ENV=test && mocha --exit --timeout 15000 --recursive test/",
+    "test:coverage": "export KOA_ENV=test && nyc --reporter=text mocha --exit --timeout 15000 --recursive test/",
+    "lint": "standard --env mocha --fix"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.0.0",
+    "dotenv": "^16.0.0",
+    "kcors": "^2.2.2",
+    "koa": "^2.15.0",
+    "koa-bodyparser": "^4.4.0",
+    "koa-router": "^12.0.0",
+    "minimal-slp-wallet": "^7.1.4"
+  },
+  "devDependencies": {
+    "chai": "^4.3.0",
+    "mocha": "^10.0.0",
+    "nyc": "^15.1.0",
+    "sinon": "^9.2.4",
+    "standard": "^14.3.4"
+  },
+  "license": "MIT"
+}
