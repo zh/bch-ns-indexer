@@ -40,3 +40,15 @@ Yes. The burn address is `bitcoincash:qqqqqqqqqqqqqqqqqqqqqqqqqqqqqu08dsyxz98whc
 To spend from any BCH address you need a private key whose public key hashes (SHA-256 then RIPEMD-160) to that address's hash. Finding an input that produces an all-zero hash requires brute-forcing ~2^160 possibilities — a number so large it is computationally impossible. No one owns this address and no one can ever gain access to it.
 
 This means every sat sent to the burn address is **permanently removed from circulation**. The burn is not a payment to a trusted party — it is provable destruction, verifiable by anyone inspecting the address.
+
+## Can someone register a name that's already taken?
+
+No. The indexer enforces a strict first-come-first-served rule. When a Create transaction is processed, the indexer checks whether the name is already active. If it is, the transaction is silently ignored — the name stays with its original owner.
+
+The ordering is deterministic: blocks are processed sequentially, and transactions within the same block are processed by their position. If two people try to register the same name in the same block, the transaction that appears first wins.
+
+After a name is deleted, there is a 100-block cooldown before anyone (including the previous owner) can re-register it. This prevents rapid delete-and-squat attacks.
+
+Note that the blockchain itself does not prevent duplicate registration transactions — they will be mined like any other valid transaction. The indexer is what enforces uniqueness by ignoring duplicates. This follows the same trust model as SLP tokens: protocol rules are enforced by indexers, not miners. You can verify everything by running your own indexer.
+
+Only the name's owner (proven cryptographically via transaction signature) can update, delete, or transfer it. No one else can modify or take over an active name.
