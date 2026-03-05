@@ -1,7 +1,7 @@
-// Usage: WIF=L1... node src/create-name.js myname.bch bitcoincash:qdestination...
+// Usage: WIF=L1... node src/create-name.js myname.<suffix> bitcoincash:qdestination...
 
 const { initWallet, validateName, cliEntry } = require('./wallet-helper')
-const { BURN_ADDRESS, BURN_AMOUNT_SATS, LOKAD_PREFIX } = require('./parser')
+const { BURN_ADDRESS, BURN_AMOUNT_SATS, LOKAD_PREFIX, NAME_SUFFIX } = require('./parser')
 
 async function createName (name, addr, wif) {
   const fullName = validateName(name)
@@ -16,7 +16,7 @@ async function createName (name, addr, wif) {
   return txid
 }
 
-cliEntry(module, 'WIF=<private-key> node src/create-name.js <name.bch> <bitcoincash:q...>', 2,
+cliEntry(module, `WIF=<private-key> node src/create-name.js <name.${NAME_SUFFIX}> <bitcoincash:q...>`, 2,
   ([name, addr], wif) => createName(name, addr, wif)
 )
 

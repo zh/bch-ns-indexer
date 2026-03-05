@@ -1,7 +1,7 @@
-// Usage: WIF=L1... node src/transfer-name.js myname.bch bitcoincash:qnewowner...
+// Usage: WIF=L1... node src/transfer-name.js myname.<suffix> bitcoincash:qnewowner...
 
 const { initWallet, validateName, cliEntry } = require('./wallet-helper')
-const { LOKAD_PREFIX } = require('./parser')
+const { LOKAD_PREFIX, NAME_SUFFIX } = require('./parser')
 
 async function transferName (name, to, wif) {
   const fullName = validateName(name)
@@ -15,7 +15,7 @@ async function transferName (name, to, wif) {
   return txid
 }
 
-cliEntry(module, 'WIF=<private-key> node src/transfer-name.js <name.bch> <bitcoincash:q...>', 2,
+cliEntry(module, `WIF=<private-key> node src/transfer-name.js <name.${NAME_SUFFIX}> <bitcoincash:q...>`, 2,
   ([name, to], wif) => transferName(name, to, wif)
 )
 

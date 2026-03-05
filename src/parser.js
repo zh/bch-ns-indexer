@@ -1,5 +1,6 @@
 const LOKAD_PREFIX = '42434e53' // hex for "BCNS"
-const NAME_REGEX = /^[a-z0-9][a-z0-9-]{1,30}[a-z0-9]\.bch$/
+const NAME_SUFFIX = process.env.NAME_SUFFIX || 'bch'
+const NAME_REGEX = new RegExp(`^[a-z0-9][a-z0-9-]{1,30}[a-z0-9]\\.${NAME_SUFFIX}$`)
 const BURN_ADDRESS = 'bitcoincash:qqqqqqqqqqqqqqqqqqqqqqqqqqqqqu08dsyxz98whc'
 const BURN_AMOUNT_SATS = 10000 // Minimum sats that must be burned to register a name
 
@@ -115,6 +116,7 @@ module.exports = {
   findBurnOutput,
   LOKAD_PREFIX,
   NAME_REGEX,
+  NAME_SUFFIX,
   BURN_ADDRESS,
   BURN_AMOUNT_SATS
 }

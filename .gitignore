@@ -15,6 +15,7 @@ dist-ssr
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
+.nyc_output/
 .idea
 .DS_Store
 *.suo
@@ -23,6 +24,6 @@ dist-ssr
 *.sln
 *.sw?
 .vercel
-.env
+.env*
 data/bchns.*
 *.sqlite

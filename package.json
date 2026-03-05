@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "test": "export KOA_ENV=test && mocha --exit --timeout 15000 --recursive test/",
-    "test:coverage": "export KOA_ENV=test && nyc --reporter=text mocha --exit --timeout 15000 --recursive test/",
+    "test": "export KOA_ENV=test && export NAME_SUFFIX=bch && mocha --exit --timeout 15000 --recursive test/",
+    "test:coverage": "export KOA_ENV=test && export NAME_SUFFIX=bch && nyc --reporter=text mocha --exit --timeout 15000 --recursive test/",
     "lint": "standard --env mocha --fix"
   },
   "dependencies": {

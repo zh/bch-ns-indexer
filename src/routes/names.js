@@ -1,7 +1,7 @@
 const crypto = require('crypto')
 const Router = require('koa-router')
 const { getName, listNames } = require('../db')
-const { NAME_REGEX } = require('../parser')
+const { NAME_REGEX, NAME_SUFFIX } = require('../parser')
 const config = require('../config')
 
 const router = new Router()
@@ -40,7 +40,7 @@ router.get('/api/names', async (ctx) => {
     }
   }
 
-  const rows = listNames()
+  const rows = listNames().filter(r => r.name.endsWith(`.${NAME_SUFFIX}`))
   ctx.body = {
     count: rows.length,
     names: rows.map(r => ({
@@ -55,7 +55,7 @@ router.get('/api/names', async (ctx) => {
 
 router.get('/api/name/:name', async (ctx) => {
   const name = ctx.params.name.trim().toLowerCase()
-  const fullName = name.endsWith('.bch') ? name : name + '.bch'
+  const fullName = name.endsWith(`.${NAME_SUFFIX}`) ? name : name + `.${NAME_SUFFIX}`
 
   if (!NAME_REGEX.test(fullName)) {
     ctx.status = 400

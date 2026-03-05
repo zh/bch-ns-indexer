@@ -1,5 +1,5 @@
 const { expect } = require('chai')
-const { parseBcnsTx, validatePayload, findBurnOutput, LOKAD_PREFIX, BURN_ADDRESS } = require('../src/parser')
+const { parseBcnsTx, validatePayload, findBurnOutput, LOKAD_PREFIX, BURN_ADDRESS, NAME_SUFFIX } = require('../src/parser')
 
 /**
  * Build a scriptPubKey hex string for a BCNS OP_RETURN output.
@@ -200,6 +200,36 @@ describe('parser', () => {
     it('should return 0 for null input', () => {
       expect(findBurnOutput(null)).to.equal(0)
       expect(findBurnOutput({})).to.equal(0)
+    })
+  })
+
+  describe('NAME_SUFFIX', () => {
+    it('should default to bch', () => {
+      expect(NAME_SUFFIX).to.equal('bch')
+    })
+
+    it('should accept custom suffix via env var (re-require)', () => {
+      // Save and set env
+      const origSuffix = process.env.NAME_SUFFIX
+      process.env.NAME_SUFFIX = 'sol'
+
+      // Clear cached module so it re-reads the env var
+      delete require.cache[require.resolve('../src/parser')]
+      const customParser = require('../src/parser')
+
+      expect(customParser.NAME_SUFFIX).to.equal('sol')
+      expect(customParser.NAME_REGEX.test('test.sol')).to.equal(true)
+      expect(customParser.NAME_REGEX.test('test.bch')).to.equal(false)
+      expect(customParser.NAME_REGEX.test('my-name123.sol')).to.equal(true)
+
+      // Restore
+      if (origSuffix === undefined) {
+        delete process.env.NAME_SUFFIX
+      } else {
+        process.env.NAME_SUFFIX = origSuffix
+      }
+      delete require.cache[require.resolve('../src/parser')]
+      require('../src/parser') // re-cache with default
     })
   })
 })

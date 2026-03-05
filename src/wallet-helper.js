@@ -1,6 +1,6 @@
 const SlpWallet = require('minimal-slp-wallet').default
 const config = require('./config')
-const { NAME_REGEX } = require('./parser')
+const { NAME_REGEX, NAME_SUFFIX } = require('./parser')
 
 /**
  * Initialize a wallet from a WIF key, ready for sending transactions.
@@ -17,10 +17,10 @@ async function initWallet (wif) {
 }
 
 /**
- * Normalize and validate a BCNS name. Returns the full name with .bch suffix.
+ * Normalize and validate a BCNS name. Returns the full name with configured suffix.
  */
 function validateName (name) {
-  const fullName = name.endsWith('.bch') ? name : name + '.bch'
+  const fullName = name.endsWith(`.${NAME_SUFFIX}`) ? name : name + `.${NAME_SUFFIX}`
   if (!NAME_REGEX.test(fullName)) {
     throw new Error(`Invalid name format: ${fullName} (must match ${NAME_REGEX})`)
   }

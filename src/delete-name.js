@@ -1,7 +1,7 @@
-// Usage: WIF=L1... node src/delete-name.js myname.bch
+// Usage: WIF=L1... node src/delete-name.js myname.<suffix>
 
 const { initWallet, validateName, cliEntry } = require('./wallet-helper')
-const { LOKAD_PREFIX } = require('./parser')
+const { LOKAD_PREFIX, NAME_SUFFIX } = require('./parser')
 
 async function deleteName (name, wif) {
   const fullName = validateName(name)
@@ -14,7 +14,7 @@ async function deleteName (name, wif) {
   return txid
 }
 
-cliEntry(module, 'WIF=<private-key> node src/delete-name.js <name.bch>', 1,
+cliEntry(module, `WIF=<private-key> node src/delete-name.js <name.${NAME_SUFFIX}>`, 1,
   ([name], wif) => deleteName(name, wif)
 )
 

@@ -1,7 +1,7 @@
-// Usage: WIF=L1... node src/update-name.js myname.bch bitcoincash:qnewaddr...
+// Usage: WIF=L1... node src/update-name.js myname.<suffix> bitcoincash:qnewaddr...
 
 const { initWallet, validateName, cliEntry } = require('./wallet-helper')
-const { LOKAD_PREFIX } = require('./parser')
+const { LOKAD_PREFIX, NAME_SUFFIX } = require('./parser')
 
 async function updateName (name, addr, wif) {
   const fullName = validateName(name)
@@ -15,7 +15,7 @@ async function updateName (name, addr, wif) {
   return txid
 }
 
-cliEntry(module, 'WIF=<private-key> node src/update-name.js <name.bch> <bitcoincash:q...>', 2,
+cliEntry(module, `WIF=<private-key> node src/update-name.js <name.${NAME_SUFFIX}> <bitcoincash:q...>`, 2,
   ([name, addr], wif) => updateName(name, addr, wif)
 )
 
